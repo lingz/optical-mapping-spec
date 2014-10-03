@@ -10,13 +10,13 @@ import java.util.Random;
  * Created by ling on 2/10/14.
  */
 public class ExperimentMolecule {
-    boolean isBad;
+    boolean isTarget;
     boolean isFlipped;
     List<Double> cuts;
     Random random = new Random();
 
-    public ExperimentMolecule(ArrayList<Double> cuts, boolean isBad) {
-        this.isBad = isBad;
+    public ExperimentMolecule(ArrayList<Double> cuts, boolean isTarget) {
+        this.isTarget = isTarget;
         isFlipped = (random.nextDouble() > 0.5) ? true : false;
         this.cuts = cuts;
 
@@ -35,6 +35,6 @@ public class ExperimentMolecule {
     }
 
     public String getGoldenString() {
-        return ((isBad) ? "1" : "0") + " " + ((isFlipped) ? "1" : "0" );
+        return ((isTarget) ?  "1 " + ((isFlipped) ? "1" : "0" ) : "0");
     }
 }

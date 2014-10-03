@@ -6,7 +6,6 @@ import org.uncommons.maths.random.GaussianGenerator;
 import org.uncommons.maths.random.PoissonGenerator;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -21,7 +20,7 @@ public class Molecule {
     public static final String NORMAL = "normal";
     public static final String UNIFORM = "uniform";
     private double probabilityIncluded;
-    boolean isBad;
+    boolean isTarget;
 
     private Random randomNumberGenreator = new Random();
     private double epsilon;
@@ -31,15 +30,17 @@ public class Molecule {
 
     private List<Double> cuts = new ArrayList<Double>(40);
 
-    public Molecule(String generatorType, double probabilityIncluded, double epsilon, int meanNumberSpuriousCuts, boolean isBad) {
+    public Molecule(String generatorType, double probabilityIncluded, double epsilon, int meanNumberSpuriousCuts, boolean isTarget) {
         this.probabilityIncluded = probabilityIncluded;
         this.epsilon = epsilon;
-        this.isBad = isBad;
+        this.isTarget = isTarget;
 
         // Initialize randomness
         randomNumberGenreator = new Random();
         double mean = randomNumberGenreator.nextDouble();
-        spuriousCutGenerator = new PoissonGenerator(meanNumberSpuriousCuts, randomNumberGenreator);
+        if (meanNumberSpuriousCuts > 0) {
+            spuriousCutGenerator = new PoissonGenerator(meanNumberSpuriousCuts, randomNumberGenreator);
+        }
         jiggleGenerator = new GaussianGenerator(0, epsilon, randomNumberGenreator);
 
         if (generatorType == EXPONENTIAL) {
@@ -79,13 +80,16 @@ public class Molecule {
             }
         }
 
-        // Now do spurious cuts
-        int numSpuriousCuts = spuriousCutGenerator.nextValue();
-        for (int i = 0; i < numSpuriousCuts; i++) {
-            includedCuts.add(randomNumberGenreator.nextDouble());
+        if (spuriousCutGenerator != null) {
+            // Now do spurious cuts
+            int numSpuriousCuts = spuriousCutGenerator.nextValue();
+            for (int i = 0; i < numSpuriousCuts; i++) {
+                includedCuts.add(randomNumberGenreator.nextDouble());
+            }
         }
 
-        return new ExperimentMolecule(includedCuts, isBad);
+
+        return new ExperimentMolecule(includedCuts, isTarget);
     }
 
     private double jiggle(double originalValue) {
