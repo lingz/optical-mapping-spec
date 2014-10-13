@@ -1,12 +1,14 @@
 package edu.nyu.opticalMapping;
 
 import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -23,6 +25,8 @@ public class Utils {
     private static byte[] salt = {0, 1, 2, 3, 4, 5, 6, 7};
     private static NumberFormat doubleFormatter = new DecimalFormat("#0.00000");
     private static final String encryptionKey = "9021nkds8xnewrq023";
+    private static final byte[] iv = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private static final IvParameterSpec ivspec = new IvParameterSpec(iv);
 
     public static String joinDoubles(List<Double> input) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -35,7 +39,7 @@ public class Utils {
         return stringBuilder.toString();
     }
 
-    public static String encryptString(String plainText) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException {
+    public static String encryptString(String plainText) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException, InvalidAlgorithmParameterException {
 
         Cipher cipher = getCipher(Cipher.ENCRYPT_MODE);
 
@@ -44,7 +48,7 @@ public class Utils {
         return Base64.encodeBase64String(raw);
     }
 
-    public static String decryptString(String cipherText) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException {
+    public static String decryptString(String cipherText) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException, InvalidAlgorithmParameterException {
 
         Cipher cipher = getCipher(Cipher.DECRYPT_MODE);
 
@@ -54,7 +58,7 @@ public class Utils {
         return plainText;
     }
 
-    private static Cipher getCipher(int mode) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, InvalidKeySpecException {
+    private static Cipher getCipher(int mode) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, InvalidKeySpecException, InvalidAlgorithmParameterException {
 
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         KeySpec spec = new PBEKeySpec(encryptionKey.toCharArray(), salt, 65536, 256);
@@ -62,7 +66,7 @@ public class Utils {
         SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
 
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        cipher.init(mode, secret);
+        cipher.init(mode, secret, ivspec);
         return cipher;
     }
 }

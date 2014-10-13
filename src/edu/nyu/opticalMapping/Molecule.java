@@ -22,7 +22,7 @@ public class Molecule {
     private double probabilityIncluded;
     boolean isTarget;
 
-    private Random randomNumberGenreator = new Random();
+    private Random randomNumberGenerator = new Random();
     private double epsilon;
 
     private GaussianGenerator jiggleGenerator;
@@ -36,15 +36,15 @@ public class Molecule {
         this.isTarget = isTarget;
 
         // Initialize randomness
-        randomNumberGenreator = new Random();
-        double mean = randomNumberGenreator.nextDouble();
+        randomNumberGenerator = new Random();
+        double mean = randomNumberGenerator.nextDouble();
         if (meanNumberSpuriousCuts > 0) {
-            spuriousCutGenerator = new PoissonGenerator(meanNumberSpuriousCuts, randomNumberGenreator);
+            spuriousCutGenerator = new PoissonGenerator(meanNumberSpuriousCuts, randomNumberGenerator);
         }
-        jiggleGenerator = new GaussianGenerator(0, epsilon, randomNumberGenreator);
+        jiggleGenerator = new GaussianGenerator(0, epsilon, randomNumberGenerator);
 
         if (generatorType == EXPONENTIAL) {
-            ExponentialGenerator exponentialGenerator = new ExponentialGenerator(mean, randomNumberGenreator);
+            ExponentialGenerator exponentialGenerator = new ExponentialGenerator(mean, randomNumberGenerator);
             for (int i = 0; i < 40; i++) {
                 double nextVal = exponentialGenerator.nextValue();
                 while (nextVal >= 1) {
@@ -53,7 +53,7 @@ public class Molecule {
                 cuts.add(nextVal);
             }
         } else if (generatorType == NORMAL) {
-            GaussianGenerator gaussianGenerator = new GaussianGenerator(mean, 0.5, randomNumberGenreator);
+            GaussianGenerator gaussianGenerator = new GaussianGenerator(mean, 0.5, randomNumberGenerator);
             for (int i = 0; i < 40; i++) {
                 double nextVal = gaussianGenerator.nextValue();
                 while (nextVal >= 1) {
@@ -63,7 +63,7 @@ public class Molecule {
             }
         } else {
             for (int i = 0; i < 40; i++) {
-                cuts.add(randomNumberGenreator.nextDouble());
+                cuts.add(randomNumberGenerator.nextDouble());
             }
         }
 
@@ -75,7 +75,7 @@ public class Molecule {
 
         ExperimentMolecule newMolecule;
         for (int i = 0; i < 40; i++) {
-            if (randomNumberGenreator.nextDouble() < probabilityIncluded) {
+            if (randomNumberGenerator.nextDouble() < probabilityIncluded) {
                 includedCuts.add(jiggle(cuts.get(i)));
             }
         }
@@ -84,7 +84,7 @@ public class Molecule {
             // Now do spurious cuts
             int numSpuriousCuts = spuriousCutGenerator.nextValue();
             for (int i = 0; i < numSpuriousCuts; i++) {
-                includedCuts.add(randomNumberGenreator.nextDouble());
+                includedCuts.add(randomNumberGenerator.nextDouble());
             }
         }
 

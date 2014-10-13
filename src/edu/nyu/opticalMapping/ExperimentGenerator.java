@@ -3,6 +3,7 @@ package edu.nyu.opticalMapping;
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -23,7 +24,7 @@ public class ExperimentGenerator {
     private static double epsilon;
 
 
-    public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, InvalidKeySpecException {
+    public static void main(String[] args) throws IOException, NoSuchPaddingException, NoSuchAlgorithmException, BadPaddingException, IllegalBlockSizeException, InvalidKeyException, InvalidKeySpecException, InvalidAlgorithmParameterException {
         problemType = Integer.parseInt(args[0]);
         String generatorType = args[1];
         probabilityIncluded = Double.parseDouble(args[2]);
@@ -81,7 +82,7 @@ public class ExperimentGenerator {
         writer.close();
     }
 
-    private static void writeParametersFile() throws FileNotFoundException, UnsupportedEncodingException, IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException {
+    private static void writeParametersFile() throws FileNotFoundException, UnsupportedEncodingException, IOException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidKeySpecException, InvalidAlgorithmParameterException {
         PrintWriter writer = new PrintWriter(fileName + "_parameters" + ".txt", "UTF-8");
         String cipherText = Utils.encryptString((new Double(epsilon).toString()));
         writer.println(cipherText);
