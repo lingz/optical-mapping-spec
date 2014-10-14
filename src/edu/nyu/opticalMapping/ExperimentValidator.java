@@ -80,51 +80,22 @@ public class ExperimentValidator {
         System.out.println(cipherText);
         epsilon = Double.parseDouble(cipherText);
         if (epsilon < 0.001) epsilon = 0.01;
-//        epsilon = Double.parseDouble(inp.readLine());
 
-        // hereafter assuming that we have the values of epsilon
-
-        // first check
 
         // calculate hamming distance
-        double hammingDistance = 0;
-
-        for(int i = 0 ; i < numFlips ; i++){
-            if( correctTypes.get(i) != inputTypes.get(i)){
-                hammingDistance = hammingDistance + 2;
-            }
-            if(correctTypes.get(i) == 1 && inputTypes.get(i) == 1 && inputFlips.get(i) != correctFlips.get(i) ){
-                hammingDistance = hammingDistance + 1;
-            }
-        }
-
+        int hammingDistance = calculateFlips();
         // calculate number of positions which are correctly calculated
-
         int firstCheck = calculateSimilar();
-
-        double answer = (hammingDistance*80)/numFlips + inputMolecule.size() + goldenMolecule.size() - 2*firstCheck;
+        double answer = (hammingDistance*80) / numFlips + inputMolecule.size() + goldenMolecule.size() - 2*firstCheck;
 
 //        System.out.println(answer);
 
-        // second check
-        Collections.reverse(inputMolecule);
+        reverseMolecules();
 
-        double hammingDistance2 = 0;
-
-        for(int i = 0 ; i < numFlips ; i++){
-            if( correctTypes.get(i) != inputTypes.get(i)){
-                hammingDistance2 = hammingDistance2 + 2;
-            }
-            if(correctTypes.get(i) == 1 && inputTypes.get(i) == 1 && inputFlips.get(i) == correctFlips.get(i) ){
-                hammingDistance2 = hammingDistance2 + 1;
-            }
-        }
-
+        int hammingDistance2 = calculateFlips();
         int secondCheck = calculateSimilar();
-
         double answer2 = (hammingDistance2*80)/numFlips + inputMolecule.size() + goldenMolecule.size() - 2*secondCheck;
 
-//        System.out.println(answer2);
 
         String actualHammingDistance, actualFP, actualFN, actualScore;
         if( answer < answer2){
@@ -146,32 +117,41 @@ public class ExperimentValidator {
         System.out.println("Final Score: " + actualScore);
     }
 
-    public static int calculateSimilar(){       // returns the number of positions that are matched in the golden molecule and the input molecule with difference less than epsilon
-        int answerLength = inputMolecule.size();
-        int correctLength = goldenMolecule.size();
-        int[][] DP  = new int[answerLength][correctLength];   // stored the number of positions that are matched
-
-        DP[0][0] = Math.abs( goldenMolecule.get(0) - inputMolecule.get(0) ) <= epsilon ? 1 : 0;
-        for(int i = 1 ; i < correctLength ; i++){
-            DP[0][i] = Math.abs( goldenMolecule.get(i) - inputMolecule.get(0) ) <= epsilon ? 1 : 0;
-            DP[0][i] = Math.max(DP[0][1], DP[0][i - 1]);
-        }
-        for(int i = 1 ; i < answerLength ; i++){
-            DP[i][0] = Math.abs( goldenMolecule.get(0) - inputMolecule.get(i) ) <= epsilon ? 1 : 0;
-            DP[i][0] = Math.max(DP[i][0], DP[i - 1][0]);
-        }
-
-        for(int i = 1 ; i < answerLength ; i++){
-            for(int j = 1 ; j < correctLength ; j++){
-                if( j > 0 && i > 0 && Math.abs( goldenMolecule.get(j) - inputMolecule.get(i) ) <= epsilon ){
-                    DP[i][j] = DP[i-1][j-1] + 1;
-                }
-                else{
-                    DP[i][j] = Math.max(DP[i - 1][j], DP[i][j - 1]);
+    private static int calculateSimilar() {       // returns the number of positions that are matched in the golden molecule and the input molecule with difference less than epsilon
+        int numFound = 0;
+        ArrayList<Double> inputMoleculeCopy = new ArrayList<Double>(inputMolecule);
+        for (int i = 0; i < goldenMolecule.size(); i++) {
+            for (int j = 0; j < inputMoleculeCopy.size(); j++) {
+                if (Math.abs(inputMoleculeCopy.get(j) - goldenMolecule.get(i)) < epsilon) {
+                    inputMoleculeCopy.remove(j);
+                    numFound++;
+                    break;
                 }
             }
         }
-        return DP[answerLength - 1][correctLength - 1];
+        return numFound;
+    }
+
+    private static void reverseMolecules() {
+        for (int i = 0; i < inputMolecule.size(); i++) {
+            inputMolecule.set(i, 1 - inputMolecule.get(i));
+        }
+        for (int i = 0; i < inputFlips.size(); i++) {
+            inputFlips.set(i, inputFlips.get(i) == 1 ? 0 : 1);
+        }
+    }
+
+    private static int calculateFlips() {
+        int hammingDistance = 0;
+        for(int i = 0 ; i < numFlips ; i++){
+            if( correctTypes.get(i) != inputTypes.get(i)){
+                hammingDistance = hammingDistance + 2;
+            }
+            else if(inputFlips.get(i) != correctFlips.get(i) ){
+                hammingDistance = hammingDistance + 1;
+            }
+        }
+        return hammingDistance;
     }
 
 }
