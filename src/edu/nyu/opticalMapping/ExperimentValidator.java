@@ -83,7 +83,7 @@ public class ExperimentValidator {
 
 
         // calculate hamming distance
-        int hammingDistance = calculateFlips();
+        double hammingDistance = calculateFlips();
         // calculate number of positions which are correctly calculated
         int firstCheck = calculateSimilar();
         double answer = (hammingDistance*80) / numFlips + inputMolecule.size() + goldenMolecule.size() - 2*firstCheck;
@@ -92,7 +92,7 @@ public class ExperimentValidator {
 
         reverseMolecules();
 
-        int hammingDistance2 = calculateFlips();
+        double hammingDistance2 = calculateFlips();
         int secondCheck = calculateSimilar();
         double answer2 = (hammingDistance2*80)/numFlips + inputMolecule.size() + goldenMolecule.size() - 2*secondCheck;
 
@@ -137,18 +137,21 @@ public class ExperimentValidator {
             inputMolecule.set(i, 1 - inputMolecule.get(i));
         }
         for (int i = 0; i < inputFlips.size(); i++) {
-            inputFlips.set(i, inputFlips.get(i) == 1 ? 0 : 1);
+            if (inputTypes.get(i) == 1) {
+                inputFlips.set(i, inputFlips.get(i) == 1 ? 0 : 1);
+            }
         }
+        Collections.reverse(inputMolecule);
     }
 
-    private static int calculateFlips() {
-        int hammingDistance = 0;
+    private static double calculateFlips() {
+        double hammingDistance = 0;
         for(int i = 0 ; i < numFlips ; i++){
             if( correctTypes.get(i) != inputTypes.get(i)){
-                hammingDistance = hammingDistance + 2;
+                hammingDistance = hammingDistance + 1;
             }
             else if(inputFlips.get(i) != correctFlips.get(i) ){
-                hammingDistance = hammingDistance + 1;
+                hammingDistance = hammingDistance + 0.5;
             }
         }
         return hammingDistance;
